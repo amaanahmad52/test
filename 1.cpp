@@ -4,74 +4,51 @@ using namespace std;
 typedef long long ll;
 #define read(v) for(ll i=0;i<v.size();++i) cin>>v[i]
 
-
-int how_many_trailing_zeroes(ll n) {
+// Function to count the number of times `factor` appears in `n`
+int prime_factors(ll n, ll factor) {
     int count = 0;
-    while (n % 10 == 0) {
-        n /= 10;
-        ++count;
+    while (n % factor == 0) {
+        n /= factor;  // Fix: Divide `n`, not `factor`
+        count++;
     }
     return count;
-}
-
-
-vector<int> one_to_ten_which_multiplies_to_give_trailing_zeroes(ll n) {
-    vector<int> ans;
-    for (int i = 1; i < 10; ++i) {
-        if ((n * i) % 10 == 0) {
-            ans.push_back(i);
-        }
-    }
-    return ans;
 }
 
 void solve() {
     ll n, m;
     cin >> n >> m;
 
-    vector<int> multiples = one_to_ten_which_multiplies_to_give_trailing_zeroes(n);
+    ll count_2 = prime_factors(n, 2);  // Correctly count 2s in `n`
+    ll count_5 = prime_factors(n, 5);  // Correctly count 5s in `n`
 
-    ll ans = 0, prod = n * m;  // Store the best product
-    for (auto &x : multiples) {
-        ll temp_x = x;
+    ///2 2 2 2 2 5 5 ,, to maximize zeroes , add up 3 5s so that five 
+    //pairs can be made that multiplies each to 10 ==>100000 here
+    ll var = 1;
 
-        // Keep multiplying x by 10 until it's larger than m
-        while (x <= m) {
-            int trailing_zeroes = how_many_trailing_zeroes(x * n);
-            if (trailing_zeroes > ans || (trailing_zeroes == ans && n * x > prod)) {
-                ans = trailing_zeroes;
-                prod = n * x;
-            }
-            x *= 10;
+    if (count_2 > count_5) {
+        while (var * 5 <= m && count_5 < count_2) {  
+            var *= 5;
+            count_5++;
         }
-
-        // Reset x
-        x = temp_x;
-
-        // Find the largest number ≤ m ending in x
-        ll lastno = (m / 10) * 10 + x;
-        if (lastno > m) lastno -= 10;
-
-        // Check trailing zeroes for lastno * n
-        int trailing_zeroes = how_many_trailing_zeroes(lastno * n);
-        if (trailing_zeroes > ans || (trailing_zeroes == ans && n * lastno > prod)) {
-            ans = trailing_zeroes;
-            prod = n * lastno;
+    } 
+    else {
+        while (var * 2 <= m && count_2 < count_5) {  
+            var *= 2;
+            count_2++;
         }
     }
 
-    // Check powers of 10 up to m
-    ll power = 10;
-    while (power <= m) {
-        int trailing_zeroes = how_many_trailing_zeroes(power * n);
-        if (trailing_zeroes > ans || (trailing_zeroes == ans && n * power > prod)) {
-            ans = trailing_zeroes;
-            prod = n * power;
-        }
-        power *= 10;
+    // Now it may be possible that var is still < m , so now we can add more 10s directly
+    while (var * 10 <= m) {
+        var *= 10;
     }
 
-    cout << prod << endl;
+    // Again, it is possible that there are many multiples of var less than m
+    ll more_multiples = m / var;
+    ll final_var = more_multiples * var;
+    ll final_output = final_var * n;
+
+    cout << final_output << endl;
 }
 
 int main() {
