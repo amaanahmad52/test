@@ -4,7 +4,7 @@ using namespace std;
 typedef long long ll;
 #define read(v) for(ll i=0;i<v.size();++i) cin>>v[i]
 
-// Function to count trailing zeroes in a number
+
 int how_many_trailing_zeroes(ll n) {
     int count = 0;
     while (n % 10 == 0) {
