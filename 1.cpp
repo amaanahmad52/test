@@ -14,7 +14,7 @@ int how_many_trailing_zeroes(ll n) {
     return count;
 }
 
-// Find small numbers (1-10) that make n*x end in zero
+
 vector<int> one_to_ten_which_multiplies_to_give_trailing_zeroes(ll n) {
     vector<int> ans;
     for (int i = 1; i < 10; ++i) {
