@@ -13,46 +13,40 @@ using vvi = vector<vi>;
 using pll = pair<ll,ll> ;
 
 
-
 void solve() {
-    ll n,m;cin>>n>>m;
+    int n,m;cin>>n>>m;
     string s;cin>>s;
-    vector<vector<ll>>a(n,vector<ll>(m));
+    vector<vector<int>>a(n,vector<int>(m));
     for(int i=0;i<n;i++){
         for(int j=0;j<m;j++){
             cin>>a[i][j];
         }
     }
-    vll colsum(m,0),rowsum(n,0);
+    vi colsum(m,0),rowsum(n,0);
     for(int i=0;i<n;i++){
         for(int j=0;j<m;j++){
             rowsum[i]+=a[i][j];
             colsum[j]+=a[i][j];
         }
     }
-    ll curRow=0,curCol=0;
+    int curRow=0,curCol=0;
     for(int i=0;i<s.size();i++){
         if(s[i]=='D'){
             //we need to make current row sum as 0 , so  update matrix a[i][j] value and update colsum accordingly
-            a[curRow][curCol]=-rowsum[curRow];
-            colsum[curCol]-=rowsum[curRow];
-            rowsum[curRow]=0;
+            a[curRow][curCol]=-rowsum[i];
+            colsum[curCol]-=rowsum[i];
+            rowsum[i]=0;
             curRow++;
         }
         else{
-            //we need to make current col sum as 0 , so  update matrix a[i][j] value and update rowsum accordingly
-            a[curRow][curCol]=-colsum[curCol];
-            rowsum[curRow]-=colsum[curCol];
-            colsum[curCol]=0;
+            a[curRow][curCol]=-colsum[i];
+            rowsum[curRow]-=colsum[i];
+            colsum[i]=0;
             curCol++;
         }
 
     }
-    if (curRow == n - 1 && curCol == m - 1) {
-        a[curRow][curCol] = -rowsum[curRow];
-        colsum[curCol] -= rowsum[curRow];
-        rowsum[curRow] = 0;
-    }
+
     for(int i=0;i<n;i++){
         for(int j=0;j<m;j++){
             cout<<a[i][j]<<" ";
