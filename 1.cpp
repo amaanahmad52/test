@@ -1,65 +1,88 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-typedef long long ll;
-#define read(v) for(ll i=0;i<v.size();++i) cin>>v[i]
+using ll = long long;
+using vi = vector<int>;
+using vll = vector<ll>;
+using vpll = vector<pair<ll, ll>>;
+using vvi = vector<vi>;
 
-// Function to count the number of times `factor` appears in `n`
-int prime_factors(ll n, ll factor) {
+#define read(v) for (int i = 0; i < v.size(); ++i) cin >> v[i]
+#define Prn(x) cout << (x) << '\n'
+
+using pll = pair<ll,ll> ;
+
+int digits(ll n){
+    int cnt=0;
+    while(n){
+        n/=10;
+        cnt++;
+    }
+    return cnt;
+}
+int countDecimalTrailingZeroes(int num) {
     int count = 0;
-    while (n % factor == 0) {
-        n /= factor;  // Fix: Divide `n`, not `factor`
+    while (num % 10 == 0 && num > 0) {  // Check divisibility by 10
         count++;
+        num /= 10;  // Remove last zero
     }
     return count;
 }
-
 void solve() {
-    ll n, m;
-    cin >> n >> m;
+    ll n,m;cin>>n>>m;
+    vll v(n);read(v);
+    
+    //make a vector pair, of number, number of trailing zeroes in that number and sort it as per pair second element
 
-    ll count_2 = prime_factors(n, 2);  // Correctly count 2s in `n`
-    ll count_5 = prime_factors(n, 5);  // Correctly count 5s in `n`
+    vpll vp;
+    for (int i = 0; i < n; i++) {
+        vp.push_back({v[i], countDecimalTrailingZeroes(v[i])});
+    }
 
-    ///2 2 2 2 2 5 5 ,, to maximize zeroes , add up 3 5s so that five 
-    //pairs can be made that multiplies each to 10 ==>100000 here
-    ll var = 1;
+    sort(vp.begin(),vp.end(),[](pll a,pll b){
+        return a.second>b.second;
+    });
 
-    if (count_2 > count_5) {
-        while (var * 5 <= m && count_5 < count_2) {  
-            var *= 5;
-            count_5++;
+    int ok=0;
+    bool anna=1;
+    for(int i=0;i<vp.size();i++){
+
+        // cout<<vp[i].first<<" "<<vp[i].second<<endl;
+        if(vp[i].second==0){
+            //if no trailing zeroes
+            ok+=digits(vp[i].first);
         }
-    } 
-    else {
-        while (var * 2 <= m && count_2 < count_5) {  
-            var *= 2;
-            count_2++;
+        else{
+            if(anna){
+                ll no_of_zeroes=vp[i].second;
+                ll no_of_digits=digits(vp[i].first);
+                
+                no_of_digits-=no_of_zeroes;
+                ok+=no_of_digits;
+                anna=0;
+
+            }
+            else{
+                ll no_of_digits=digits(vp[i].first);
+                
+                ok+=no_of_digits;
+                anna=1;
+            }
         }
     }
 
-    // Now it may be possible that var is still < m , so now we can add more 10s directly
-    while (var * 10 <= m) {
-        var *= 10;
-    }
-
-    // Again, it is possible that there are many multiples of var less than m
-    ll more_multiples = m / var;
-    ll final_var = more_multiples * var;
-    ll final_output = final_var * n;
-
-    cout << final_output << endl;
+    if(ok>=m+1)Prn("Sasha");
+    else Prn("Anna");
 }
 
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+int32_t main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(0), cout.tie(0);
 
-    ll t;
+    int t;
     cin >> t;
     while (t--) {
         solve();
     }
-
     return 0;
 }
