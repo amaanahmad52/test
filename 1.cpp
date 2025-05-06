@@ -1,75 +1,128 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-using ll = long long;
-using vi = vector<int>;
-using vll = vector<ll>;
-using vpll = vector<pair<ll, ll>>;
-using vvi = vector<vi>;
-
-#define read(v) for (int i = 0; i < v.size(); ++i) cin >> v[i]
-#define Prn(x) cout << (x) << '\n'
-
-using pll = pair<ll,ll> ;
 
 
-
-void solve() {
-    ll n,m;cin>>n>>m;
-    string s;cin>>s;
-    vector<vector<ll>>a(n,vector<ll>(m));
-    for(int i=0;i<n;i++){
-        for(int j=0;j<m;j++){
-            cin>>a[i][j];
-        }
+class Solution {
+public:
+    bool good(int i,int j,int n,int m){
+        return i>=0 and j>=0 and i<n and j<m;
     }
-    vll colsum(m,0),rowsum(n,0);
-    for(int i=0;i<n;i++){
-        for(int j=0;j<m;j++){
-            rowsum[i]+=a[i][j];
-            colsum[j]+=a[i][j];
+    void solve() {
+        int n,m;cin>>n>>m;
+        vector<vector<char>>mat(n,vector<char>(m));
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                cin>>mat[i][j];
+            }
+        } 
+        // set<pair<int,int>>vis;
+        //getting all the safe cells
+        //top row
+        vector<pair<int,int>>safe;
+        for(int i=0;i<m;i++){
+            if(mat[0][i]=='U'){
+                safe.push_back({0,i});
+                // vis.insert({0,i});
+                mat[0][i]='#';
+            }
         }
-    }
-    ll curRow=0,curCol=0;
-    for(int i=0;i<s.size();i++){
-        if(s[i]=='D'){
-            //we need to make current row sum as 0 , so  update matrix a[i][j] value and update colsum accordingly
-            a[curRow][curCol]=-rowsum[curRow];
-            colsum[curCol]-=rowsum[curRow];
-            rowsum[curRow]=0;
-            curRow++;
+        //right column
+        for(int i=0;i<n;i++){
+            if(mat[i][m-1]=='R'){
+                safe.push_back({i,m-1});
+                // vis.insert({i,m-1});
+                mat[i][m-1]='#';
+            }
         }
-        else{
-            //we need to make current col sum as 0 , so  update matrix a[i][j] value and update rowsum accordingly
-            a[curRow][curCol]=-colsum[curCol];
-            rowsum[curRow]-=colsum[curCol];
-            colsum[curCol]=0;
-            curCol++;
+        //bottom row
+        for(int i=0;i<m;i++){
+            if(mat[n-1][i]=='D'){
+                safe.push_back({n-1,i});
+                // vis.insert({n-1,i});
+                mat[n-1][i]='#';
+            }
+        }
+        //left column
+        for(int i=0;i<n;i++){
+            if(mat[i][0]=='L'){
+                safe.push_back({i,0});
+                // vis.insert({i,0});
+                mat[i][0]='#';
+            }
         }
 
-    }
-    if (curRow == n - 1 && curCol == m - 1) {
-        a[curRow][curCol] = -rowsum[curRow];
-        colsum[curCol] -= rowsum[curRow];
-        rowsum[curRow] = 0;
-    }
-    for(int i=0;i<n;i++){
-        for(int j=0;j<m;j++){
-            cout<<a[i][j]<<" ";
+
+        //all those cells which points to safe cell is also safe
+        for(int i=0;i<safe.size();i++){
+            int r=safe[i].first,c=safe[i].second;
+            char top=r-1>=0?mat[r-1][c]:'#';
+            char right=c+1<m?mat[r][c+1]:'#';
+            char bottom=r+1<n?mat[r+1][c]:'#';
+            char left=c-1>=0?mat[r][c-1]:'#';
+            if(top=='D'){
+                safe.push_back({r-1,c});
+                mat[r-1][c]='#';
+            }
+            if(right=='L'){
+                safe.push_back({r,c+1});
+                mat[r][c+1]='#';
+            }
+            if(bottom=='U'){
+                safe.push_back({r+1,c});
+                mat[r+1][c]='#';
+            }
+            if(left=='R'){
+                safe.push_back({r,c-1});
+                mat[r][c-1]='#';
+            }
         }
-        cout<<endl;
+
+        //now all those cells which are completely surrounded by safe cells are also safe
+        
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                if(mat[i][j]!='?')continue; //we only checking blanks
+               
+                bool ok=1;
+                for(int x=-1;x<=1;x++){
+                    for(int y=-1;y<=1;y++){
+                        if(x==0 or y==0){
+                            //means only 4 surrounding sides
+                            //all surrounding sides should have only safe cells
+                            int nr=i+x,nc=j+y;
+                            if(x==0 and y==0)continue;
+                            if(good(nr,nc,n,m) and mat[nr][nc]!='#'){ //surrounding is unsafe
+                                
+                                ok=0;
+                            }
+                        }
+                        if(!ok)break;   
+                        
+                    }
+                }
+                if(ok){
+                    // safe.push_back({i,j});
+                    mat[i][j]='#';
+                }
+            }
+        }
+        int ans=0;
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                if(mat[i][j]=='#')ans++;
+            }
+        }
+        cout<<n*m-ans<<endl;
     }
+};
 
-}
-
-int32_t main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(0), cout.tie(0);
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
     int t;
     cin >> t;
-    while (t--) {
-        solve();
-    }
-    return 0;
+    Solution s;
+    while (t--) s.solve();
 }
